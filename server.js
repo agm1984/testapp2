@@ -57,11 +57,20 @@ app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 
 // Use application-level middleware for common functionality, including
-// logging, parsing, and session handling.
+// logging, parsing.
 app.use(require('morgan')('combined'));
 app.use(require('cookie-parser')());
 app.use(require('body-parser').urlencoded({ extended: true }));
-app.use(require('express-session')({ secret: config.secret, resave: false, saveUninitialized: false }));
+
+// expressSession library for session handling
+var expressSession = require('express-session');
+var sessionOptions = {
+    secret: config.secret,
+    resave: false,
+    saveUninitialized: true
+}
+var sessionInstance = expressSession(sessionOptions);
+app.use(sessionInstance);
 
 // Initialize Passport and restore authentication state, if any, from the
 // session.
