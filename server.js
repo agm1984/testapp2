@@ -1,8 +1,16 @@
 var express = require('express');
-var mongoose = require('mongoose');
 var passport = require('passport');
 var Strategy = require('passport-local').Strategy;
 var db = require('./db');
+
+// Mongoose database connection
+var mongoose = require('mongoose');
+var config = require('./config.json');
+var dbConnect = require('./controllers/database');
+dbConnect();
+
+var Users = require('./models/users');
+
 
 // Configure the local strategy for use by Passport.
 //
@@ -19,26 +27,6 @@ passport.use(new Strategy(
       return cb(null, user);
     });
   }));
-
-// Configure mongoose
-mongoose.connect('mongodb://localhost/todos');
-
-// Define user model
-var Schema = mongoose.Schema;
-
-var UserSchema = new Schema({
-    name: String,
-    email: String,
-    username: {
-      type: String,
-      unique: true
-    },
-    password: String,
-});
-
-var user = mongoose.model('User', UserSchema);
-
-
 
 // Configure Passport authenticated session persistence.
 //
@@ -73,7 +61,7 @@ app.set('view engine', 'ejs');
 app.use(require('morgan')('combined'));
 app.use(require('cookie-parser')());
 app.use(require('body-parser').urlencoded({ extended: true }));
-app.use(require('express-session')({ secret: 'keyboard cat', resave: false, saveUninitialized: false }));
+app.use(require('express-session')({ secret: config.secret, resave: false, saveUninitialized: false }));
 
 // Initialize Passport and restore authentication state, if any, from the
 // session.
@@ -110,9 +98,9 @@ app.get('/profile',
   });
 
 app.get('/users', function(req, res) {
-  mongoose.model('User').find(function(err, user) {
-    res.send(user);
+  Users.find(function(err, allUsers) {
+    res.send(allUsers);
   });
 });
 
-app.listen(1337);
+app.listen(config.port);

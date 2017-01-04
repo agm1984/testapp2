@@ -11,4 +11,7 @@ var UserSchema = new Schema({
     password: String,
 });
 
-mongoose.model('User', UserSchema);
+// Create object with all DB users in it
+var Users = mongoose.model('User', UserSchema);
+
+module.exports = Users;

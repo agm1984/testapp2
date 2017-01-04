@@ -1,0 +1,5 @@
+{
+   "db": "mongodb://localhost/todos",
+   "port": 1337,
+   "secret": "extremeCatPhotos.gif"
+}
