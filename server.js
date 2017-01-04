@@ -1,8 +1,8 @@
 var express = require('express');
+var mongoose = require('mongoose');
 var passport = require('passport');
 var Strategy = require('passport-local').Strategy;
 var db = require('./db');
-
 
 // Configure the local strategy for use by Passport.
 //
@@ -19,6 +19,25 @@ passport.use(new Strategy(
       return cb(null, user);
     });
   }));
+
+// Configure mongoose
+mongoose.connect('mongodb://localhost/todos');
+
+// Define user model
+var Schema = mongoose.Schema;
+
+var UserSchema = new Schema({
+    name: String,
+    email: String,
+    username: {
+      type: String,
+      unique: true
+    },
+    password: String,
+});
+
+var user = mongoose.model('User', UserSchema);
+
 
 
 // Configure Passport authenticated session persistence.
@@ -71,13 +90,13 @@ app.get('/login',
   function(req, res){
     res.render('login');
   });
-  
-app.post('/login', 
+
+app.post('/login',
   passport.authenticate('local', { failureRedirect: '/login' }),
   function(req, res) {
     res.redirect('/');
   });
-  
+
 app.get('/logout',
   function(req, res){
     req.logout();
@@ -90,4 +109,10 @@ app.get('/profile',
     res.render('profile', { user: req.user });
   });
 
-app.listen(3000);
+app.get('/users', function(req, res) {
+  mongoose.model('User').find(function(err, user) {
+    res.send(user);
+  });
+});
+
+app.listen(1337);
